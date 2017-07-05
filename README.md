@@ -8,7 +8,7 @@ The goal of the library is to retrieve as fast as possible a timezone into a dat
 
 ## Dataset 
 
-The key resource of the library is the dataset. Let's see how was generated (notice that the library uses the generated dataset directly):  
+The key resource of the library is the dataset. Let's see how it was generated (notice that the library uses the generated dataset directly):  
 
 ```
  ____________________________      _______________      ________________      _____________
