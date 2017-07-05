@@ -86,7 +86,7 @@ The dataset is loaded into an array in the order it is read in the csv. Each ind
 # How to use it 
 
 ```java
-    // instanciating the library takes ~1.5sec because it loads the load the dataset. Ideally it should be done only once. 
+    // instanciating the library takes ~1.5sec because it loads the dataset.
     TimeZoneLookup tz = new TimeZoneLookup();
     double latitude = 48.3904;
     double longitude = -4.4861;
