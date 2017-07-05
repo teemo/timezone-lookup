@@ -85,6 +85,10 @@ The dataset is loaded into an array in the order it is read in the csv. Each ind
 
 # How to use it 
 
+```
+compile 'com.databerries.timezone:timezone-lookup:1.0.0'
+```
+
 ```java
     // instanciating the library takes ~1.5sec because it loads the dataset.
     TimeZoneLookup tz = new TimeZoneLookup();
