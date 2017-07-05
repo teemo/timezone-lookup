@@ -18,7 +18,7 @@ The library does a simple lookup in an array dataset. The most difficult part wa
 ```
 
 ### [lat-long-points-generator](https://github.com/databerries/lat-long-points-generator)
-Generate a csv with lat/long points that cover the entire earth at a regular step in degrees. Sample of data (latitude, longitude, index): 
+Generates a csv with lat/long points that cover the entire earth at a regular step in degrees. Sample of data (latitude, longitude, index): 
 
 ```
 51.15,2.2,1
@@ -36,11 +36,7 @@ The dataset generated at this stage contains 25'920'000 points with an accuracy 
 
 ### [apply-tzwhere](https://github.com/databerries/apply-tzwhere)
 
-Associate each lat/long point with the corresponding timezone using the library [java-tzwhere](https://github.com/sensoranalytics/java-tzwhere/)
-
-You might wandering why not simply using java-tzwhere? Here is the reason:
-java-tzwhere is a very accurate lib, which is really great! It's also relatively fast, it takes few milliseconds. However to process billion of rows it remains too slow.
-This library is faster (about few nanoseconds), however it's less accurate.
+Associates each lat/long point with the corresponding timezone using the library [java-tzwhere](https://github.com/sensoranalytics/java-tzwhere/).
 
 This process step generates a new csv. Here is a sample of data (latitude, longitude, string timezone, index):
 
@@ -59,7 +55,7 @@ This process step generates a new csv. Here is a sample of data (latitude, longi
 
 ### [kdtree-islands](https://github.com/databerries/neareast-tz)
 
-At this step there are timezones only for points on land. We decided to compute timezones for the points in the seas but near the coasts by 20km. To do so, we used an implementation of a [KdTree](https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/KdTree.java).
+At this step there are timezones only for points on land. We decided to compute timezones for the points in the seas near the coasts by 20km. To do so, we used an implementation of a [KdTree](https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/KdTree.java).
 
 ### reduce file
 
@@ -76,12 +72,25 @@ Here a sample:
 328
 ```
 
+## The hash function 
+The dataset is loaded into an array in the order it is read in the csv. Each index of the array correspond to a specific hash calculted from a latitude and a longitude. The array contains timezone ids.
+
+```java
+  private int hash(double latitude, double longitude) {
+    int iLat = (int) Math.floor((latitude + 90) / STEP);
+    int iLng = (int) Math.floor((longitude + 180) / STEP);
+    return iLng + (iLat * NB_POINTS_LONGITUDE);
+  }
+```
+
 # How to use it 
 
-```Java
+```java
+    // instanciating the library takes ~1.5sec because it loads the load the dataset. Ideally it should be done only once. 
     TimeZoneLookup tz = new TimeZoneLookup();
     double latitude = 48.3904;
     double longitude = -4.4861;
+    // fast lookup in the dataset, takes few nanosecondes.
     ZoneId result = tz.getZoneId(latitude, longitude);
     System.out.println(result);
 ```
