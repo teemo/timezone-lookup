@@ -59,7 +59,7 @@ At this step there are timezones only for points on land. We decided to compute 
 
 ### reduce file
 
-At this step dataset is already usable but quite heavy. To reduce it we applied transformations on it:
+At this step the dataset is already usable but quite heavy. To reduce it we applied transformations on it:
 * use timezone ids instead of timezone strings. Keep a mapping file to do the conversion. 
 * remove the index (the index was useful to process steps in parallel and reorder the result)
 * remove latitude and the longitude, because only the position of the points in the file matters (see later the hash function).
