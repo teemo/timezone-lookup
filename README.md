@@ -1,76 +1,96 @@
-# TimeZone 
+# TimeZoneLookup
 
 A timezone lookup library taking as parameters a latitude and a longitude and returning a timezone as string (e.g. Europe/Paris).
 
 The goal of the library is to retrieve as fast as possible a timezone into a dataset by giving a latitude and a longitude.
 
-The library has two implementations based on two different datasets which we are going to discuss next. 
+# How it works
 
-## Datasets
-Both datasets were populated using the library [java-tzwhere](https://github.com/sensoranalytics/java-tzwhere/)
+## Dataset 
 
-So you might wandering why not simply using java-tzwhere?
+The library does a simple lookup in an array dataset. The most difficult part was to generate this dataset. At the end, the library directly uses the generated dataset, but for a matter of transparency let's see how it was generated. 
+
+```
+ ____________________________      _______________      ________________      _____________
+|                            |    |               |    |                |    |             |
+| lat-long-points-generator  | -> | apply-tzwhere | -> | kdtree-islands | -> | reduce file |
+|____________________________|    |_______________|    |________________|    |_____________|
+```
+
+### [lat-long-points-generator](https://github.com/databerries/lat-long-points-generator)
+Generate a csv with lat/long points that cover the entire earth at a regular step in degrees. Sample of data (latitude, longitude, index): 
+
+```
+51.15,2.2,1
+51.15,2.25,2
+51.15,2.3,3
+51.15,2.35,4
+51.15,2.4,5
+51.15,2.45,6
+51.15,2.5,7
+51.2,2.35,8
+51.2,2.4,9
+51.2,2.45,10
+```
+The dataset generated at this stage contains 25'920'000 points with an accuracy of 0.005 degree.
+
+### [apply-tzwhere](https://github.com/databerries/apply-tzwhere)
+
+Associate each lat/long point with the corresponding timezone using the library [java-tzwhere](https://github.com/sensoranalytics/java-tzwhere/)
+
+You might wandering why not simply using java-tzwhere? Here is the reason:
 java-tzwhere is a very accurate lib, which is really great! It's also relatively fast, it takes few milliseconds. However to process billion of rows it remains too slow.
-This library is much faster (about few nanoseconds), however it's less accurate.
+This library is faster (about few nanoseconds), however it's less accurate.
 
-The datasets are csv files with the following format: __latitude,longitude,timezone__
-
-```
-41.13375,-110.00886,America/Denver
-41.13375,-109.84942,America/Denver
-41.13375,-109.68999,America/Denver
-41.13375,-109.53056,America/Denver
--90.0,-179.1,null
-```
-
-### KdTree Dataset
-The first dataset is used to be loaded in a kdtree implementation by:
-https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/KdTree.java
-
-* [lat-long-points-generator](https://github.com/databerries/lat-long-points-generator)
-* [apply-tzwhere](https://github.com/databerries/apply-tzwhere)
-* [kdtree-filter](TODO)
+This process step generates a new csv. Here is a sample of data (latitude, longitude, string timezone, index):
 
 ```
- ____________________________      _______________      _______________
-|                            |    |               |    |               |
-| lat_long_points_generator  | -> | apply-tzwhere | -> | kdtree-filter |
-|____________________________|    |_______________|    |_______________|
+51.15,2.2,Europe/Paris,1
+51.15,2.25,Europe/Paris,2
+51.15,2.3,Europe/Paris,3
+51.15,2.35,Europe/Paris,4
+51.15,2.4,Europe/Paris,5
+51.15,2.45,Europe/Paris,6
+51.15,2.5,Europe/Paris,7
+51.2,2.35,Europe/Paris,8
+51.2,2.4,Europe/Paris,9
+51.2,2.45,Europe/Paris,10
 ```
 
-* lat_long_points_generator: generates lat/long points at a certain accuracy. Output: 48.8,2.3
-* apply-tzwhere: finds all the timezones for the points. Output: 48.8,2.3,Europe/Paris
-* KdTree filter: TODO
+### [kdtree-islands](https://github.com/databerries/neareast-tz)
 
-Please, refer to each project individually for more information.
+At this step there are timezones only for points on land. We decided to compute timezones for the points in the seas but near the coasts by 20km. To do so, we used an implementation of a [KdTree](https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/KdTree.java).
 
-### Array Dataset 
-The second dataset is used to be loaded in a simple array.
+### reduce file
 
-* [lat-long-points-generator](https://github.com/databerries/lat-long-points-generator)
-* [apply-tzwhere](https://github.com/databerries/apply-tzwhere)
-* [kdtree-islands](TODO)
+At this step dataset is already usable but quite heavy. To reduce it we applied transformations on it:
+* use timezone ids instead of timezone strings. Keep a mapping file to do the conversion. 
+* remove the index (the index was useful to process steps in parallel and reorder the result)
+* remove latitude and the longitude, because only the position of the points in the file matters (see later the hash function).
+
+Here a sample:
+```
+328
+328
+328
+328
+```
+
+# How to use it 
+
+```Java
+    TimeZoneLookup tz = new TimeZoneLookup();
+    double latitude = 48.3904;
+    double longitude = -4.4861;
+    ZoneId result = tz.getZoneId(latitude, longitude);
+    System.out.println(result);
+```
+
+* result
 
 ```
- ____________________________      _______________      ________________
-|                            |    |               |    |                |
-| lat_long_points_generator  | -> | apply-tzwhere | -> | kdtree-islands |
-|____________________________|    |_______________|    |________________|
+Europe/Paris
 ```
-
-* lat_long_points_generator: generates lat/long points at a certain accuracy. Output: 48.8,2.3
-* apply-tzwhere: finds all the timezones for the points. Output: 48.8,2.3,Europe/Paris
-* kdtree-islands: add additional timezones along the coasts until 20km
-
-Please, refer to each project individually for more information.
-
-## KdTree implementation
-We have a dataset containing a location and a timezone for all the earth except territorial seas. All point are distant by  approximately a distance of 10Km
-With the KdTree we have a timezone for every points on the earth. It will return the closest timezone to the point. Which could be wrong for point in the middle of the sea.
-
-## Array implementation 
-We have a dataset of a timeset for every point of the earth with a distance of 5km and a key corresponding to the timezone. We can calculate the position in the array with a hash function thus we dont have to iterate to find the timezone
-With the array implementation we dont have any time zone for points in the middle of the sea.
 
 # Why is it useful ?
 When you want a timezone without any in call to external API and to be accurate (the error margin is 5km).
