@@ -1,0 +1,84 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id "com.jfrog.bintray" version "1.7"
+}
+
+version = '0.2'
+group = 'com.databerries.timezone'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'java'
+}
+
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sourceJar, javadocJar
+}
+
+
+publishing {
+    publications {
+        timezone(MavenPublication) {
+            from components.java
+            groupId 'com.databerries.timezone'
+            artifactId 'timezone'
+            version '0.2'
+            artifact sourceJar
+            artifact javadocJar
+
+        }
+    }
+}
+
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('bintrayUser')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('bintrayApiKey')
+    publications = ['timezone']
+    pkg {
+        repo = 'TimeZone'
+        userOrg = 'databerries'
+        name = 'timezone'
+        vcsUrl = 'https://github.com/databerries/timezone-lookup'
+        labels = ['TimeZone']
+        licenses = ['MIT']
+        publicDownloadNumbers = true
+        version {
+            name = '0.2'
+            desc = 'timezone'
+            attributes = ['gradle-plugin': 'com.databerries.timezone:com.databerries.timezone.gradle:gradle-timezone-plugin']
+        }
+    }
+}
