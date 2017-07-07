@@ -90,13 +90,13 @@ compile 'com.databerries.timezone:timezone-lookup:1.0.0'
 ```
 
 ```java
-    // instanciating the library takes ~1.5sec because it loads the dataset.
-    TimeZoneLookup tz = new TimeZoneLookup();
-    double latitude = 48.3904;
-    double longitude = -4.4861;
-    // fast lookup in the dataset, takes few nanosecondes.
-    ZoneId result = tz.getZoneId(latitude, longitude);
-    System.out.println(result);
+// instanciating the library takes ~1.5sec because it loads the dataset.
+TimeZoneLookup tz = new TimeZoneLookup();
+double latitude = 48.3904;
+double longitude = -4.4861;
+// fast lookup in the dataset, takes few nanosecondes.
+ZoneId result = tz.getZoneId(latitude, longitude);
+System.out.println(result);
 ```
 
 * result
