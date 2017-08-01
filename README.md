@@ -1,8 +1,9 @@
 # TimeZoneLookup
 
-A timezone lookup library taking as parameters a latitude and a longitude and returning a timezone as string (e.g. Europe/Paris).
+A high performance timezone lookup library taking as parameters a latitude and a longitude and returning a timezone as string (e.g. Europe/Paris). 
 
-The goal of the library is to retrieve as fast as possible a timezone into a dataset by giving a latitude and a longitude.
+The goal of the library is to retrieve as fast as possible a timezone into a dataset by giving a latitude and a longitude. This library gives a timezone from a latitude and a longitude in about 10 ns. Most timezone lookup libraries that we benchmarked were at least two order of magnitude slower (>1ms).
+
 
 # How it works
 
@@ -104,10 +105,6 @@ System.out.println(result);
 ```
 Europe/Paris
 ```
-
-# Why is it useful ?
-When you want a timezone without any in call to external API and to be accurate (the error margin is 5km).
-Before writing this library we have benchmarked different libraries and none of them gave us good results for our application
 
 # TODO
 - Include international seas timezones
