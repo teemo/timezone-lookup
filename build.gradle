@@ -8,7 +8,7 @@ plugins {
     id "com.jfrog.bintray" version "1.7"
 }
 
-version = '0.2'
+version = '1.1.0'
 group = 'com.databerries.timezone'
 
 allprojects {
@@ -70,13 +70,13 @@ bintray {
     pkg {
         repo = 'TimeZone'
         userOrg = 'databerries'
-        name = 'timezone'
+        name = 'timezone-lookup'
         vcsUrl = 'https://github.com/databerries/timezone-lookup'
         labels = ['TimeZone']
         licenses = ['MIT']
         publicDownloadNumbers = true
         version {
-            name = '0.2'
+            name = project.version
             desc = 'timezone'
             attributes = ['gradle-plugin': 'com.databerries.timezone:com.databerries.timezone.gradle:gradle-timezone-plugin']
         }
