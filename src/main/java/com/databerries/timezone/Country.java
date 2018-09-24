@@ -1,6 +1,6 @@
 package com.databerries.timezone;
 
-class Country {
+public class Country {
     private final String countryCode;
     private final String administrationCode;
 
