@@ -42,8 +42,8 @@ publishing {
         timezone(MavenPublication) {
             from components.java
             groupId 'com.databerries.timezone'
-            artifactId 'timezone'
-            version '0.2'
+            artifactId 'timezone-lookup'
+            version project.version
             artifact sourceJar
             artifact javadocJar
 

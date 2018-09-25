@@ -87,7 +87,7 @@ The dataset is loaded into an array in the order it is read in the csv. Each ind
 # How to use it 
 
 ```
-compile 'com.databerries.timezone:timezone-lookup:1.0.0'
+compile 'com.databerries.timezone:timezone-lookup:1.2.0'
 ```
 
 ```java
